@@ -1,0 +1,18 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    container_name: inscritos_container
+    restart: on-failure:5
+    environment:
+      POSTGRES_USER: container_user
+      POSTGRES_PASSWORD: container_pw
+      POSTGRES_DB: container_db
+    ports:
+      - "5432:5432"   # expose Postgres to your host
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
