@@ -1,7 +1,6 @@
 package dev.matheuslf.desafio.inscritos.domain.models;
 
 import dev.matheuslf.desafio.inscritos.domain.exceptions.NotValidException;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -30,10 +29,10 @@ class ProjectTest {
         
         // then
         assertNotNull(project);
-        assertEquals(VALID_NAME, project.getName());
-        assertEquals(VALID_DESCRIPTION, project.getDescription());
-        assertEquals(VALID_START_DATE, project.getStartDate());
-        assertNull(project.getEndDate());
+        assertEquals(VALID_NAME, project.name());
+        assertEquals(VALID_DESCRIPTION, project.description());
+        assertEquals(VALID_START_DATE, project.startDate());
+        assertNull(project.endDate());
     }
     
 

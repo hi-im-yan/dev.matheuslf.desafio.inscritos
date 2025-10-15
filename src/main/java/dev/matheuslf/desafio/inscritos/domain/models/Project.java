@@ -1,49 +1,25 @@
 package dev.matheuslf.desafio.inscritos.domain.models;
 
 import dev.matheuslf.desafio.inscritos.domain.exceptions.NotValidException;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
 
 import java.time.LocalDate;
 
-@Getter
-@EqualsAndHashCode
-@ToString
-public class Project {
-    private String name;
-    private String description;
-    private LocalDate startDate;
-    private LocalDate endDate;
-
+public record Project(String name, String description, LocalDate startDate, LocalDate endDate) {
     public Project(String name, String description, LocalDate startDate) {
-        if (!isNameValid(name)) {
-            throw new NotValidException("Name must be between 3 and 100 characters.");
-        }
-        if (!isStartDateValid(startDate)) {
-            throw new NotValidException("Start date must be a valid date.");
-        }
-
-        this.name = name;
-        this.description = description;
-        this.startDate = startDate;
+        this(name, description, startDate, null);
     }
 
-    public Project(String name, String description, LocalDate startDate, LocalDate endDate) {
+    public Project {
         if (!isNameValid(name)) {
             throw new NotValidException("Name must be between 3 and 100 characters.");
         }
         if (!isStartDateValid(startDate)) {
             throw new NotValidException("Start date must be a valid date.");
         }
-        if (!isEndDateValid(endDate)) {
+        if (!isEndDateValid(startDate, endDate)) {
             throw new NotValidException("End date must be after start date.");
         }
 
-        this.name = name;
-        this.description = description;
-        this.startDate = startDate;
-        this.endDate = endDate;
     }
 
     private Boolean isNameValid(String name) {
@@ -55,11 +31,7 @@ public class Project {
         return startDate != null;
     }
 
-    private Boolean isEndDateValid(LocalDate endDate) {
-        if (endDate == null) {
-            return true;
-        }
-        return this.startDate != null && endDate.isBefore(this.startDate);
+    private Boolean isEndDateValid(LocalDate startDate, LocalDate endDate) {
+        return endDate == null || !endDate.isBefore(startDate);
     }
-
 }
