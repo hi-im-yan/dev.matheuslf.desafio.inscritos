@@ -1,15 +1,13 @@
 package dev.matheuslf.desafio.inscritos.domain.models;
 
 import dev.matheuslf.desafio.inscritos.domain.exceptions.NotValidException;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.ToString;
 
 import java.time.LocalDate;
 
 @Getter
-@Setter
 @EqualsAndHashCode
 @ToString
 public class Project {
@@ -29,6 +27,23 @@ public class Project {
         this.name = name;
         this.description = description;
         this.startDate = startDate;
+    }
+
+    public Project(String name, String description, LocalDate startDate, LocalDate endDate) {
+        if (!isNameValid(name)) {
+            throw new NotValidException("Name must be between 3 and 100 characters.");
+        }
+        if (!isStartDateValid(startDate)) {
+            throw new NotValidException("Start date must be a valid date.");
+        }
+        if (!isEndDateValid(endDate)) {
+            throw new NotValidException("End date must be after start date.");
+        }
+
+        this.name = name;
+        this.description = description;
+        this.startDate = startDate;
+        this.endDate = endDate;
     }
 
     private Boolean isNameValid(String name) {

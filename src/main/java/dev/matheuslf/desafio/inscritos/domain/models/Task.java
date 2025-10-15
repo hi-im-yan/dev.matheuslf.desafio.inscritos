@@ -1,15 +1,13 @@
 package dev.matheuslf.desafio.inscritos.domain.models;
 
 import dev.matheuslf.desafio.inscritos.domain.exceptions.NotValidException;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.ToString;
 
 import java.time.LocalDate;
 
 @Getter
-@Setter
 @EqualsAndHashCode
 @ToString
 public class Task {
