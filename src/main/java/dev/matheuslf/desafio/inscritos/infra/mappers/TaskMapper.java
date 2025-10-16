@@ -24,7 +24,7 @@ public class TaskMapper {
         if (entity == null) {
             return null;
         }
-        
+
         Project project = new Project(
             entity.getProject().getName(),
             entity.getProject().getDescription(),

@@ -2,6 +2,7 @@ package dev.matheuslf.desafio.inscritos.application.usecases;
 
 import dev.matheuslf.desafio.inscritos.application.exceptions.AlreadyExistsException;
 import dev.matheuslf.desafio.inscritos.application.interfaces.IProjectRepository;
+import dev.matheuslf.desafio.inscritos.application.usecases.dto.CreateProjectInput;
 import dev.matheuslf.desafio.inscritos.application.usecases.dto.ProjectOutput;
 import dev.matheuslf.desafio.inscritos.domain.models.Project;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +16,7 @@ import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+
 
 @ExtendWith(MockitoExtension.class)
 class CreateProjectUseCaseTest {
@@ -38,6 +40,7 @@ class CreateProjectUseCaseTest {
         );
 
         projectOutput = new ProjectOutput(
+                1L,
                 project.name(),
                 project.description(),
                 project.startDate(),
@@ -45,21 +48,28 @@ class CreateProjectUseCaseTest {
         );
     }
 
+
     @Test
     void execute_WithNewProject_ReturnsCreatedProject() {
         // Arrange
-        when(projectRepository.findByName(project.name())).thenReturn(null);
-        when(projectRepository.save(project)).thenReturn(projectOutput);
+        CreateProjectInput input = new CreateProjectInput(
+                project.name(),
+                project.description(),
+                project.startDate(),
+                project.endDate()
+        );
+        when(projectRepository.findByName(input.name())).thenReturn(null);
+        when(projectRepository.save(any(Project.class))).thenReturn(projectOutput);
 
         // Act
-        ProjectOutput result = createProjectUseCase.execute(project);
+        ProjectOutput result = createProjectUseCase.execute(input);
 
         // Assert
         assertNotNull(result);
         assertEquals(project.name(), result.name());
         assertEquals(project.description(), result.description());
         verify(projectRepository, times(1)).findByName(project.name());
-        verify(projectRepository, times(1)).save(project);
+        verify(projectRepository, times(1)).save(any(Project.class));
     }
 
     @Test
@@ -68,9 +78,15 @@ class CreateProjectUseCaseTest {
         when(projectRepository.findByName(project.name())).thenReturn(projectOutput);
 
         // Act & Assert
+        CreateProjectInput input = new CreateProjectInput(
+                project.name(),
+                project.description(),
+                project.startDate(),
+                project.endDate()
+        );
         AlreadyExistsException exception = assertThrows(
                 AlreadyExistsException.class,
-                () -> createProjectUseCase.execute(project)
+                () -> createProjectUseCase.execute(input)
         );
 
         assertEquals("Project already exists", exception.getMessage());
