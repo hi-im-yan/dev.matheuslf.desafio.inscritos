@@ -1,6 +1,7 @@
 package dev.matheuslf.desafio.inscritos.infra.controllers;
 
 import dev.matheuslf.desafio.inscritos.application.usecases.CreateTaskUseCase;
+import dev.matheuslf.desafio.inscritos.application.usecases.DeleteTaskUseCase;
 import dev.matheuslf.desafio.inscritos.application.usecases.FilterTaskUseCase;
 import dev.matheuslf.desafio.inscritos.application.usecases.dto.CreateTaskInput;
 import dev.matheuslf.desafio.inscritos.domain.models.TaskPriorityEnum;
@@ -20,10 +21,12 @@ public class TaskController {
 
     private final CreateTaskUseCase createTaskUseCase;
     private final FilterTaskUseCase filterTaskUseCase;
+    private final DeleteTaskUseCase deleteTaskUseCase;
 
-    public TaskController(CreateTaskUseCase createTaskUseCase, FilterTaskUseCase filterTaskUseCase) {
+    public TaskController(CreateTaskUseCase createTaskUseCase, FilterTaskUseCase filterTaskUseCase, DeleteTaskUseCase deleteTaskUseCase) {
         this.createTaskUseCase = createTaskUseCase;
         this.filterTaskUseCase = filterTaskUseCase;
+        this.deleteTaskUseCase = deleteTaskUseCase;
     }
 
     @PostMapping
@@ -61,8 +64,8 @@ public class TaskController {
 
     @DeleteMapping("/{taskId}")
     public ResponseEntity<Void> deleteTask(@PathVariable Long taskId) {
-        // Implementation will be added once the DeleteTaskUseCase is available
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+        deleteTaskUseCase.execute(taskId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
 }
