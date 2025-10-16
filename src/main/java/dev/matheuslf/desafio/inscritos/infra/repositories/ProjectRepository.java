@@ -1,6 +1,5 @@
 package dev.matheuslf.desafio.inscritos.infra.repositories;
 
-import dev.matheuslf.desafio.inscritos.application.exceptions.NotFoundException;
 import dev.matheuslf.desafio.inscritos.application.interfaces.IProjectRepository;
 import dev.matheuslf.desafio.inscritos.application.usecases.dto.ProjectOutput;
 import dev.matheuslf.desafio.inscritos.domain.models.Project;
