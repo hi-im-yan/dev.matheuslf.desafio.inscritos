@@ -7,21 +7,22 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 public record ProjectOutput(
-    String name,
-    String description,
-    
-    @JsonFormat(pattern = "dd-MM-yyyy")
-    @JsonProperty("startDate")
-    LocalDate startDate,
-    
-    @JsonFormat(pattern = "dd-MM-yyyy")
-    @JsonProperty("endDate")
-    LocalDate endDate
+        Long id,
+        String name,
+        String description,
+
+        @JsonFormat(pattern = "dd-MM-yyyy")
+        @JsonProperty("startDate")
+        LocalDate startDate,
+
+        @JsonFormat(pattern = "dd-MM-yyyy")
+        @JsonProperty("endDate")
+        LocalDate endDate
 ) {
     public String formattedStartDate() {
         return startDate != null ? startDate.format(DateTimeFormatter.ofPattern("dd-MM-yyyy")) : null;
     }
-    
+
     public String formattedEndDate() {
         return endDate != null ? endDate.format(DateTimeFormatter.ofPattern("dd-MM-yyyy")) : null;
     }

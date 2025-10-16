@@ -35,12 +35,12 @@ class TaskTest {
         
         // then
         assertNotNull(task);
-        assertEquals(VALID_TITLE, task.getTitle());
-        assertEquals(VALID_DESCRIPTION, task.getDescription());
-        assertEquals(VALID_STATUS, task.getStatus());
-        assertEquals(VALID_PRIORITY, task.getPriority());
-        assertEquals(VALID_DUE_DATE, task.getDueDate());
-        assertEquals(validProject, task.getProject());
+        assertEquals(VALID_TITLE, task.title());
+        assertEquals(VALID_DESCRIPTION, task.description());
+        assertEquals(VALID_STATUS, task.status());
+        assertEquals(VALID_PRIORITY, task.priority());
+        assertEquals(VALID_DUE_DATE, task.dueDate());
+        assertEquals(validProject, task.project());
     }
     
     @Test
@@ -49,8 +49,8 @@ class TaskTest {
         Task task = new Task(VALID_TITLE, null, VALID_STATUS, VALID_PRIORITY, null, validProject);
         
         // then
-        assertNull(task.getDescription());
-        assertNull(task.getDueDate());
+        assertNull(task.description());
+        assertNull(task.dueDate());
     }
     
     @ParameterizedTest

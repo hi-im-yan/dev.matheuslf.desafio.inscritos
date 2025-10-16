@@ -2,6 +2,7 @@ package dev.matheuslf.desafio.inscritos.infra.controllers;
 
 import dev.matheuslf.desafio.inscritos.application.usecases.CreateProjectUseCase;
 import dev.matheuslf.desafio.inscritos.application.usecases.ListProjectsUseCase;
+import dev.matheuslf.desafio.inscritos.application.usecases.dto.CreateProjectInput;
 import dev.matheuslf.desafio.inscritos.application.usecases.dto.ProjectOutput;
 import dev.matheuslf.desafio.inscritos.infra.controllers.dto.CreateProjectReqDTO;
 import jakarta.validation.Valid;
@@ -26,7 +27,13 @@ public class ProjectController {
 
     @PostMapping
     public ResponseEntity<ProjectOutput> createProject(@Valid @RequestBody CreateProjectReqDTO request) {
-        ProjectOutput project = createProjectUseCase.execute(request.toDomain());
+        CreateProjectInput useCaseInput = new CreateProjectInput(
+                request.name(),
+                request.description(),
+                request.startDate(),
+                request.endDate()
+        );
+        ProjectOutput project = createProjectUseCase.execute(useCaseInput);
         return ResponseEntity.status(HttpStatus.CREATED).body(project);
     }
 
@@ -35,5 +42,7 @@ public class ProjectController {
         List<ProjectOutput> projects = listProjectsUseCase.execute();
         return ResponseEntity.ok(projects);
     }
+
+
 
 }
