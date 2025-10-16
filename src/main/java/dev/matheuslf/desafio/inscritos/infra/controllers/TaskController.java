@@ -1,8 +1,9 @@
 package dev.matheuslf.desafio.inscritos.infra.controllers;
 
-import dev.matheuslf.desafio.inscritos.application.exceptions.NotFoundException;
 import dev.matheuslf.desafio.inscritos.application.usecases.CreateTaskUseCase;
+import dev.matheuslf.desafio.inscritos.application.usecases.FilterTaskUseCase;
 import dev.matheuslf.desafio.inscritos.application.usecases.dto.CreateTaskInput;
+import dev.matheuslf.desafio.inscritos.domain.models.TaskPriorityEnum;
 import dev.matheuslf.desafio.inscritos.application.usecases.dto.TaskOutput;
 import dev.matheuslf.desafio.inscritos.domain.models.TaskStatusEnum;
 import dev.matheuslf.desafio.inscritos.infra.controllers.dto.CreateTaskReqDTO;
@@ -18,9 +19,11 @@ import java.util.List;
 public class TaskController {
 
     private final CreateTaskUseCase createTaskUseCase;
+    private final FilterTaskUseCase filterTaskUseCase;
 
-    public TaskController(CreateTaskUseCase createTaskUseCase) {
+    public TaskController(CreateTaskUseCase createTaskUseCase, FilterTaskUseCase filterTaskUseCase) {
         this.createTaskUseCase = createTaskUseCase;
+        this.filterTaskUseCase = filterTaskUseCase;
     }
 
     @PostMapping
@@ -38,12 +41,13 @@ public class TaskController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TaskOutput>> listTasks(
+    public ResponseEntity<List<TaskOutput>> filterTasks(
             @RequestParam(required = false) TaskStatusEnum status,
-            @RequestParam(required = false) String priority,
+            @RequestParam(required = false) TaskPriorityEnum priority,
             @RequestParam(required = false) Long projectId) {
-        // Implementation will be added once the ListTasksUseCase is available
-        return ResponseEntity.ok(List.of());
+        
+        List<TaskOutput> tasks = filterTaskUseCase.execute(status, priority, projectId);
+        return ResponseEntity.ok(tasks);
     }
 
     @PatchMapping("/{taskId}/status")
@@ -54,15 +58,11 @@ public class TaskController {
         return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
     }
 
+
     @DeleteMapping("/{taskId}")
     public ResponseEntity<Void> deleteTask(@PathVariable Long taskId) {
         // Implementation will be added once the DeleteTaskUseCase is available
         return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
     }
 
-    @GetMapping("/{taskId}")
-    public ResponseEntity<TaskOutput> getTask(@PathVariable Long taskId) {
-        // Implementation will be added once the GetTaskUseCase is available
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
-    }
 }

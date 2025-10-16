@@ -131,43 +131,6 @@ class TaskRepositoryTest {
     }
 
     @Test
-    void findWithFilter_ShouldReturnFilteredTasks() {
-        // Arrange
-        TaskEntity filteredTask = TaskEntity.builder()
-            .id(2L)
-            .title("Filtered Task")
-            .status(TASK_STATUS)
-            .priority(TASK_PRIORITY)
-            .project(projectEntity)
-            .build();
-
-        when(taskJpaRepository.findByProjectId(PROJECT_ID)).thenReturn(List.of(taskEntity, filteredTask));
-
-        // Act
-        List<TaskOutput> result = taskRepository.findWithFilter(TASK_STATUS, TASK_PRIORITY, PROJECT_ID);
-
-        // Assert
-        assertEquals(2, result.size());
-        assertEquals(TASK_TITLE, result.get(0).title());
-        assertEquals("Filtered Task", result.get(1).title());
-        
-        verify(taskJpaRepository, times(1)).findByProjectId(PROJECT_ID);
-    }
-
-    @Test
-    void findWithFilter_WithNoMatchingTasks_ShouldReturnEmptyList() {
-        // Arrange
-        when(taskJpaRepository.findByProjectId(PROJECT_ID)).thenReturn(Collections.emptyList());
-
-        // Act
-        List<TaskOutput> result = taskRepository.findWithFilter(TASK_STATUS, TASK_PRIORITY, PROJECT_ID);
-
-        // Assert
-        assertTrue(result.isEmpty());
-        verify(taskJpaRepository, times(1)).findByProjectId(PROJECT_ID);
-    }
-
-    @Test
     void updateStatus_WithExistingTask_ShouldUpdateAndReturnTask() {
         // Arrange
         TaskEntity updatedTask = TaskEntity.builder()
@@ -243,5 +206,93 @@ class TaskRepositoryTest {
         // Assert
         assertNull(result);
         verify(taskJpaRepository, times(1)).findById(TASK_ID);
+    }
+
+    @Test
+    void findWithFilter_ShouldReturnFilteredTasks() {
+        // Arrange
+        TaskEntity filteredTask = TaskEntity.builder()
+                .id(2L)
+                .title("Another Task")
+                .status(TASK_STATUS)
+                .priority(TASK_PRIORITY)
+                .project(projectEntity)
+                .build();
+
+        when(taskJpaRepository.findByStatusAndPriorityAndProjectId(TASK_STATUS, TASK_PRIORITY, PROJECT_ID))
+                .thenReturn(List.of(savedTaskEntity, filteredTask));
+
+        // Act
+        var result = taskRepository.findWithFilter(TASK_STATUS, TASK_PRIORITY, PROJECT_ID);
+
+        // Assert
+        assertEquals(2, result.size());
+        assertEquals(TASK_TITLE, result.get(0).title());
+        assertEquals("Another Task", result.get(1).title());
+        verify(taskJpaRepository, times(1))
+                .findByStatusAndPriorityAndProjectId(TASK_STATUS, TASK_PRIORITY, PROJECT_ID);
+    }
+
+    @Test
+    void findWithFilter_WithNullStatus_ShouldFilterOnlyByPriorityAndProject() {
+        // Arrange
+        when(taskJpaRepository.findByStatusAndPriorityAndProjectId(null, TASK_PRIORITY, PROJECT_ID))
+                .thenReturn(Collections.singletonList(savedTaskEntity));
+
+        // Act
+        var result = taskRepository.findWithFilter(null, TASK_PRIORITY, PROJECT_ID);
+
+        // Assert
+        assertEquals(1, result.size());
+        assertEquals(TASK_TITLE, result.get(0).title());
+        verify(taskJpaRepository, times(1))
+                .findByStatusAndPriorityAndProjectId(null, TASK_PRIORITY, PROJECT_ID);
+    }
+
+    @Test
+    void findWithFilter_WithNullPriority_ShouldFilterOnlyByStatusAndProject() {
+        // Arrange
+        when(taskJpaRepository.findByStatusAndPriorityAndProjectId(TASK_STATUS, null, PROJECT_ID))
+                .thenReturn(Collections.singletonList(savedTaskEntity));
+
+        // Act
+        var result = taskRepository.findWithFilter(TASK_STATUS, null, PROJECT_ID);
+
+        // Assert
+        assertEquals(1, result.size());
+        assertEquals(TASK_TITLE, result.get(0).title());
+        verify(taskJpaRepository, times(1))
+                .findByStatusAndPriorityAndProjectId(TASK_STATUS, null, PROJECT_ID);
+    }
+
+    @Test
+    void findWithFilter_WithNoMatchingTasks_ShouldReturnEmptyList() {
+        // Arrange
+        when(taskJpaRepository.findByStatusAndPriorityAndProjectId(TASK_STATUS, TASK_PRIORITY, PROJECT_ID))
+                .thenReturn(Collections.emptyList());
+
+        // Act
+        var result = taskRepository.findWithFilter(TASK_STATUS, TASK_PRIORITY, PROJECT_ID);
+
+        // Assert
+        assertTrue(result.isEmpty());
+        verify(taskJpaRepository, times(1))
+                .findByStatusAndPriorityAndProjectId(TASK_STATUS, TASK_PRIORITY, PROJECT_ID);
+    }
+
+    @Test
+    void findWithFilter_WithDifferentProject_ShouldNotReturnTasks() {
+        // Arrange
+        Long differentProjectId = 2L;
+        when(taskJpaRepository.findByStatusAndPriorityAndProjectId(TASK_STATUS, TASK_PRIORITY, differentProjectId))
+                .thenReturn(Collections.emptyList());
+
+        // Act
+        var result = taskRepository.findWithFilter(TASK_STATUS, TASK_PRIORITY, differentProjectId);
+
+        // Assert
+        assertTrue(result.isEmpty());
+        verify(taskJpaRepository, times(1))
+                .findByStatusAndPriorityAndProjectId(TASK_STATUS, TASK_PRIORITY, differentProjectId);
     }
 }

@@ -5,6 +5,7 @@ import dev.matheuslf.desafio.inscritos.application.interfaces.ITasksRepository;
 import dev.matheuslf.desafio.inscritos.application.usecases.CreateProjectUseCase;
 import dev.matheuslf.desafio.inscritos.application.usecases.CreateTaskUseCase;
 import dev.matheuslf.desafio.inscritos.application.usecases.ListProjectsUseCase;
+import dev.matheuslf.desafio.inscritos.application.usecases.FilterTaskUseCase;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -32,5 +33,10 @@ public class UseCaseConfig {
     @Bean
     public CreateTaskUseCase createTaskUseCase() {
         return new CreateTaskUseCase(taskRepository, projectRepository);
+    }
+
+    @Bean
+    public FilterTaskUseCase listTasksUseCase() {
+        return new FilterTaskUseCase(taskRepository);
     }
 }

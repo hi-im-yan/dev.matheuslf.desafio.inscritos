@@ -37,15 +37,16 @@ public class TaskRepository implements ITasksRepository {
         return TaskMapper.toOutput(savedEntity);
     }
     
+
     @Override
     public List<TaskOutput> findWithFilter(TaskStatusEnum status, TaskPriorityEnum priority, Long projectId) {
-        return taskJpaRepository.findByProjectId(projectId).stream()
-                .filter(entity -> entity.getStatus() == status)
-                .filter(entity -> entity.getPriority() == priority)
+        return taskJpaRepository.findByStatusAndPriorityAndProjectId(status, priority, projectId)
+                .stream()
                 .map(TaskMapper::toOutput)
                 .collect(Collectors.toList());
     }
     
+
     @Override
     public TaskOutput updateStatus(Long taskId, TaskStatusEnum status) {
         TaskEntity entity = taskJpaRepository.findById(taskId).orElseThrow(() -> new NotFoundException("Task not found"));
