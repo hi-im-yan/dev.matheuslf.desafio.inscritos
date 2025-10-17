@@ -1,4 +1,4 @@
-package dev.matheuslf.desafio.inscritos.infra.beans;
+package dev.matheuslf.desafio.inscritos.infra.configs;
 
 import dev.matheuslf.desafio.inscritos.application.interfaces.IProjectRepository;
 import dev.matheuslf.desafio.inscritos.application.interfaces.ITasksRepository;
