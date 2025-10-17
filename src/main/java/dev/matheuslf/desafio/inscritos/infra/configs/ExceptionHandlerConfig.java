@@ -1,6 +1,7 @@
 package dev.matheuslf.desafio.inscritos.infra.configs;
 
 import dev.matheuslf.desafio.inscritos.application.exceptions.NotFoundException;
+import dev.matheuslf.desafio.inscritos.domain.exceptions.NotValidException;
 import dev.matheuslf.desafio.inscritos.infra.controllers.dto.ApiErrorResDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -81,6 +82,19 @@ public class ExceptionHandlerConfig {
                 .message("Validation failed")
                 .path(request.getRequestURI())
                 .errors(errors.values().stream().toList())
+                .build();
+
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+    
+    @ExceptionHandler(NotValidException.class)
+    public ResponseEntity<ApiErrorResDTO> handleNotValidException(NotValidException ex, HttpServletRequest request) {
+        ApiErrorResDTO error = ApiErrorResDTO.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
                 .build();
 
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
