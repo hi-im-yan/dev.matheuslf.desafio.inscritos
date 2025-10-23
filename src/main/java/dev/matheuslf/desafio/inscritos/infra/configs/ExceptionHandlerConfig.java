@@ -6,6 +6,7 @@ import dev.matheuslf.desafio.inscritos.infra.controllers.dto.ApiErrorResDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -13,7 +14,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
@@ -22,7 +26,7 @@ public class ExceptionHandlerConfig {
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ApiErrorResDTO> handleMethodArgumentTypeMismatch(
             MethodArgumentTypeMismatchException ex, HttpServletRequest request) {
-        
+
         String errorMessage = String.format("The parameter '%s' of value '%s' could not be converted to type '%s'.",
                 ex.getName(),
                 ex.getValue(),
@@ -67,13 +71,15 @@ public class ExceptionHandlerConfig {
     public ResponseEntity<ApiErrorResDTO> handleValidationExceptions(
             MethodArgumentNotValidException ex, HttpServletRequest request) {
 
-        Map<String, String> errors = ex.getBindingResult()
+        List<String> validationErrors = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
-                .collect(Collectors.toMap(
-                        FieldError::getField,
-                        fieldError -> fieldError.getDefaultMessage() != null ? fieldError.getDefaultMessage() : ""
-                ));
+                .map(fieldError -> String.format(
+                        "%s: %s",
+                        fieldError.getField(),
+                        Optional.ofNullable(fieldError.getDefaultMessage()).orElse("Invalid value")
+                ))
+                .toList();
 
         ApiErrorResDTO error = ApiErrorResDTO.builder()
                 .timestamp(LocalDateTime.now())
@@ -81,12 +87,13 @@ public class ExceptionHandlerConfig {
                 .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
                 .message("Validation failed")
                 .path(request.getRequestURI())
-                .errors(errors.values().stream().toList())
+                .errors(validationErrors)
                 .build();
 
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
-    
+
+
     @ExceptionHandler(NotValidException.class)
     public ResponseEntity<ApiErrorResDTO> handleNotValidException(NotValidException ex, HttpServletRequest request) {
         ApiErrorResDTO error = ApiErrorResDTO.builder()
@@ -94,6 +101,31 @@ public class ExceptionHandlerConfig {
                 .status(HttpStatus.BAD_REQUEST.value())
                 .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
                 .message(ex.getMessage())
+                .path(request.getRequestURI())
+                .build();
+
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiErrorResDTO> handleHttpMessageNotReadable(
+            HttpMessageNotReadableException ex,
+            HttpServletRequest request) {
+
+        String errorMessage = "Invalid request body";
+
+        // Check if the cause is a DateTimeParseException
+        if (ex.getCause() != null && ex.getCause().getCause() instanceof DateTimeParseException) {
+            errorMessage = "Invalid date format. Please use dd-MM-yyyy format (e.g., 31-12-2025)";
+        } else if (ex.getMessage() != null && ex.getMessage().contains("JSON parse error")) {
+            errorMessage = "Invalid JSON format in request body";
+        }
+
+        ApiErrorResDTO error = ApiErrorResDTO.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
+                .message(errorMessage)
                 .path(request.getRequestURI())
                 .build();
 

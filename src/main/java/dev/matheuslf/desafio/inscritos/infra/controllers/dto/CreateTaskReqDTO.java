@@ -20,9 +20,11 @@ public record CreateTaskReqDTO(
         @Schema(description = "Description of the task", example = "Implement the new user registration flow")
         String description,
 
+        @NotNull(message = "Status is required")
         @Schema(description = "Status of the task", example = "TODO")
         TaskStatusEnum status,
 
+        @NotNull(message = "Priority is required")
         @Schema(description = "Priority of the task", example = "HIGH")
         TaskPriorityEnum priority,
 
