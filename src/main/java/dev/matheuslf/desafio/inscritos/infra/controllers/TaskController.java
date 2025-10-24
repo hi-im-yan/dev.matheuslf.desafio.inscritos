@@ -20,6 +20,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/tasks")
 @Tag(
@@ -82,6 +84,8 @@ public class TaskController {
             )
     })
     public ResponseEntity<TaskOutput> createTask(@Valid @RequestBody CreateTaskReqDTO request) {
+        log.info("Starting task creation: title={}, projectId={}", request.title(), request.projectId());
+        
         CreateTaskInput useCaseInput = new CreateTaskInput(
                 request.title(),
                 request.description(),
@@ -90,7 +94,10 @@ public class TaskController {
                 request.dueDate(),
                 request.projectId()
         );
+        
         TaskOutput task = createTaskUseCase.execute(useCaseInput);
+        log.info("Task created successfully: taskId={}", task.id());
+        
         return ResponseEntity.status(HttpStatus.CREATED).body(task);
     }
 
@@ -124,7 +131,12 @@ public class TaskController {
             @Parameter(description = "Filter tasks by project ID", example = "1")
             @RequestParam(required = false) Long projectId) {
 
+        log.debug("Filtering tasks - status: {}, priority: {}, projectId: {}", 
+                 status, priority, projectId);
+        
         List<TaskOutput> tasks = filterTaskUseCase.execute(status, priority, projectId);
+        log.debug("Found {} tasks with the applied filters", tasks.size());
+        
         return ResponseEntity.ok(tasks);
     }
 
@@ -166,8 +178,13 @@ public class TaskController {
                     example = "DOING"
             )
             @PathVariable TaskStatusEnum status) {
+        
+        log.info("Updating task status: taskId={}, newStatus={}", taskId, status);
+        
         UpdateTaskStatusInput input = new UpdateTaskStatusInput(taskId, status);
         TaskOutput updatedTask = updateTaskStatusUseCase.execute(input);
+        
+        log.info("Task status updated successfully: taskId={}", taskId);
         return ResponseEntity.ok(updatedTask);
     }
 
@@ -194,7 +211,12 @@ public class TaskController {
     public ResponseEntity<Void> deleteTask(
             @Parameter(description = "ID of the task to delete", required = true, example = "1")
             @PathVariable Long taskId) {
+        
+        log.info("Starting task deletion: taskId={}", taskId);
+        
         deleteTaskUseCase.execute(taskId);
+        
+        log.info("Task deleted successfully: taskId={}", taskId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 

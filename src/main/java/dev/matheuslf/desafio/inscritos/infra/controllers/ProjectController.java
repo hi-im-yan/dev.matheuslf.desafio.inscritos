@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +32,7 @@ import java.util.List;
     produces = MediaType.APPLICATION_JSON_VALUE
 )
 @Tag(name = "Projects", description = "Endpoints for managing projects")
+@Slf4j
 @RequiredArgsConstructor
 public class ProjectController {
 
@@ -61,13 +63,18 @@ public class ProjectController {
     )
     public ResponseEntity<ProjectOutput> createProject(
             @Valid @RequestBody CreateProjectReqDTO request) {
+        log.info("Starting project creation: name={}", request.name());
+        
         CreateProjectInput useCaseInput = new CreateProjectInput(
                 request.name(),
                 request.description(),
                 request.startDate(),
                 request.endDate()
         );
+        
         ProjectOutput project = createProjectUseCase.execute(useCaseInput);
+        log.info("Project created successfully: projectId={}", project.id());
+        
         return ResponseEntity.status(HttpStatus.CREATED).body(project);
     }
 
@@ -85,7 +92,11 @@ public class ProjectController {
     )
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ProjectOutput>> listProjects() {
+        log.debug("Listing all projects");
+        
         List<ProjectOutput> projects = listProjectsUseCase.execute();
+        log.debug("Total projects found: {}", projects.size());
+        
         return ResponseEntity.ok(projects);
     }
 
